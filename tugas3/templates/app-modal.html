@@ -1,0 +1,11 @@
+    <transition name="modal-fade">
+      <div v-if="show" class="modal-overlay" @click.self="close">
+        <div class="modal-container" :class="'modal-' + size">
+          <div class="modal-header">
+            <h3 class="modal-title" v-text="title"></h3>
+            <button type="button" class="modal-close" @click="close">&times;</button>
+          </div>
+          <div class="modal-body"><slot></slot></div>
+        </div>
+      </div>
+    </transition>

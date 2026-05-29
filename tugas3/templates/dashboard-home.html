@@ -1,0 +1,56 @@
+    <div class="fade-in">
+      <div class="hero-greeting">
+        <div class="hero-glow-1"></div>
+        <div class="hero-glass">
+          <div class="hero-date-badge"><span class="dot"></span> {{ today }}</div>
+          <h1 class="hero-greeting-text">{{ greeting }}, {{ userName }}! 👋</h1>
+          <p class="hero-subtitle">Selamat datang di Sistem Informasi Tracking dan Transaksi Ajar (SITTA) — Pantau dan kelola bahan ajar Universitas Terbuka secara real-time.</p>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card fade-up stagger-1"><div class="stat-top"><div class="stat-icon-box icon-total">📦</div></div><div class="stat-number">{{ stats.total }}</div><div class="stat-label">Total Bahan Ajar</div></div>
+        <div class="stat-card fade-up stagger-2"><div class="stat-top"><div class="stat-icon-box icon-safe">✅</div></div><div class="stat-number">{{ stats.aman }}</div><div class="stat-label">Stok Aman</div></div>
+        <div class="stat-card fade-up stagger-3"><div class="stat-top"><div class="stat-icon-box icon-low">⚠️</div></div><div class="stat-number">{{ stats.menipis }}</div><div class="stat-label">Stok Menipis</div></div>
+        <div class="stat-card fade-up stagger-4"><div class="stat-top"><div class="stat-icon-box icon-empty">❌</div></div><div class="stat-number">{{ stats.kosong }}</div><div class="stat-label">Stok Kosong</div></div>
+        <div class="stat-card fade-up stagger-5"><div class="stat-top"><div class="stat-icon-box icon-value">💰</div></div><div class="stat-number">{{ formatRupiah(stats.totalNilai) }}</div><div class="stat-label">Total Nilai Stok</div></div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="card fade-up stagger-3">
+          <div class="card-header"><h3>🔄 Bahan Ajar Perlu Reorder</h3></div>
+          <div class="card-body">
+            <div class="table-wrap" v-if="reorderList.length">
+              <table class="modern">
+                <thead><tr><th>Kode</th><th>Nama Bahan Ajar</th><th>Stok</th><th>Safety</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr v-for="item in reorderList" :key="item.kode">
+                    <td><span class="cell-code" v-text="item.kode"></span></td>
+                    <td><span class="cell-name" v-text="item.nama"></span></td>
+                    <td v-text="item.qty"></td><td v-text="item.safety"></td>
+                    <td><span :class="getBadgeClass(item)" v-text="getStatusText(item)"></span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p v-else class="stat-label" style="padding:12px 0;">Semua stok dalam kondisi aman ✅</p>
+          </div>
+        </div>
+        <div class="card fade-up stagger-4">
+          <div class="card-header"><h3>📊 Ringkasan Stok</h3></div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table class="modern">
+                <thead><tr><th>Kode</th><th>Nama</th><th>Stok</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr v-for="item in summaryItems" :key="item.kode">
+                    <td><span class="cell-code" v-text="item.kode"></span></td>
+                    <td><span class="cell-name" v-text="item.nama"></span></td>
+                    <td v-text="item.qty"></td>
+                    <td><span :class="getBadgeClass(item)" v-text="getStatusText(item)"></span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

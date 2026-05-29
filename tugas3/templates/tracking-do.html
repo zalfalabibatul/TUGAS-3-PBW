@@ -1,0 +1,66 @@
+    <div class="tracking-wrap">
+      <div class="tracking-header">
+        <h2>Tracking Delivery Order <span>— Pantau pengiriman bahan ajar</span></h2>
+        <button type="button" class="btn-back-dash" @click="goToDashboard">Dashboard</button>
+      </div>
+      <p class="tracking-summary" v-html="doSummaryText"></p>
+      <p v-if="saveMessage" class="stock-filter-hint" style="margin-bottom:16px;background:#dcfce7;border-color:#86efac;color:#15803d;"><span>✅</span> <span v-text="saveMessage"></span></p>
+      <div class="tracking-form-card">
+        <h3><span class="form-plus">+</span> Tambah Delivery Order Baru</h3>
+        <form @submit.prevent="addDO">
+        <div class="tracking-form-grid">
+          <div class="form-group"><label class="f-label" for="do-nomor">Nomor DO (otomatis)</label><input id="do-nomor" :value="nextDoNumber" readonly></div>
+          <div class="form-group"><label class="f-label" for="do-nim">NIM</label><input id="do-nim" v-model="newDO.nim" :class="{ 'input-error': formErrors.nim }" placeholder="Isi NIM"><span v-if="formErrors.nim" class="form-error" v-text="formErrors.nim"></span></div>
+          <div class="form-group"><label class="f-label" for="do-nama">Nama</label><input id="do-nama" v-model="newDO.nama" :class="{ 'input-error': formErrors.nama }" placeholder="Isi Nama"><span v-if="formErrors.nama" class="form-error" v-text="formErrors.nama"></span></div>
+          <div class="form-group"><label class="f-label" for="do-ekspedisi">Ekspedisi</label><select id="do-ekspedisi" v-model="newDO.ekspedisi" :class="{ 'input-error': formErrors.ekspedisi }"><option value="">Pilih ekspedisi</option><option v-for="p in pengirimanList" :key="p.kode" :value="p.nama" v-text="p.nama"></option></select><span v-if="formErrors.ekspedisi" class="form-error" v-text="formErrors.ekspedisi"></span></div>
+          <div class="form-group"><label class="f-label" for="do-paket">Paket Bahan Ajar</label><select id="do-paket" v-model="newDO.paketKode" :class="{ 'input-error': formErrors.paketKode }"><option value="">Pilih paket</option><option v-for="p in paketList" :key="p.kode" :value="p.kode" v-text="p.kode + ' — ' + p.nama"></option></select><span v-if="formErrors.paketKode" class="form-error" v-text="formErrors.paketKode"></span></div>
+          <div class="form-group"><label class="f-label" for="do-tanggal">Tanggal Kirim</label><input id="do-tanggal" type="date" v-model="newDO.tanggalKirim" required></div>
+        </div>
+        <div class="tracking-paket-detail" v-if="selectedPaket"><strong>Detail Paket:</strong> {{ selectedPaket.kode }} — {{ selectedPaket.nama }}<br><span style="font-size:12px;color:var(--gray-500);">Isi paket:</span><ul><li v-for="kode in selectedPaket.isi" :key="kode"><span v-html="labelBahanHtml(kode)"></span></li></ul><div class="tracking-paket-total"><strong>Total Harga:</strong> {{ toRupiah(selectedPaket.harga) }}</div></div>
+        <p v-else-if="newDO.paketKode" class="tracking-paket-empty">Paket tidak ditemukan.</p>
+        <p v-else class="tracking-paket-empty">Pilih paket untuk melihat detail isi dan harga.</p>
+        <div class="tracking-form-actions"><button type="submit" class="btn btn-primary">Tambah DO</button><button type="button" class="btn btn-secondary" @click="resetForm">Reset Form</button></div>
+        </form>
+      </div>
+      <div style="margin-bottom:12px;display:flex;gap:10px;align-items:center">
+        <input type="search" v-model="searchKeyword" placeholder="Cari nomor DO / NIM..." @keydown.enter.prevent="doSearch" @keyup.escape="clearSearch" style="flex:1;padding:9px 14px;border:1px solid var(--gray-200);border-radius:10px;font-size:13px;font-family:inherit;background:var(--white)">
+        <span v-show="searchKeyword" style="font-size:12px;color:var(--gray-400);cursor:pointer" @click="clearSearch">✕ reset</span>
+      </div>
+      <div class="tracking-table-card">
+        <div class="tracking-table-header"><h3>🚚 Daftar Delivery Order</h3><span style="font-size:12px;color:var(--gray-500);font-weight:500;">{{ filteredTracking.length }} DO</span></div>
+        <div class="tracking-table-wrap">
+          <table>
+            <thead><tr><th>Nomor DO</th><th>NIM</th><th>Nama</th><th>Ekspedisi</th><th>Paket</th><th>Tanggal Kirim</th><th>Total Harga</th><th>Status</th><th>Progress</th></tr></thead>
+            <tbody>
+              <tr v-if="trackingList.length === 0"><td colspan="9" class="tracking-empty">Belum ada data Delivery Order. Tambahkan data baru di form di atas.</td></tr>
+              <tr v-for="item in filteredTracking" :key="item.nomorDO"><td><span class="cell-do" v-text="item.nomorDO"></span></td><td><span class="cell-nim" v-text="item.nim"></span></td><td v-text="item.nama"></td><td v-text="item.ekspedisi"></td><td v-text="item.paketKode"></td><td v-text="item.tanggalKirim"></td><td style="font-weight:600;" v-text="toRupiah(item.totalHarga)"></td><td><span class="status-badge" :class="statusClass(item.status)" v-text="item.status"></span></td><td><button type="button" class="btn-progress" @click="showProgress(item)" :title="'Lihat progress ' + item.nomorDO">📋</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div v-if="selectedDO" class="progress-panel">
+        <div class="progress-panel-header">
+          <h3><span>📋</span> Progress Tracking: <strong v-text="selectedDO.nomorDO"></strong></h3>
+          <button type="button" class="btn-progress-close" @click="closeProgress">&times;</button>
+        </div>
+        <p class="progress-panel-sub">Nama: <strong v-text="selectedDO.nama"></strong> (NIM: <strong v-text="selectedDO.nim"></strong>)</p>
+        <div class="progress-timeline">
+          <div v-if="!selectedDO.perjalanan || selectedDO.perjalanan.length === 0" class="progress-empty">Belum ada catatan progress.</div>
+          <div v-for="(entry, idx) in selectedDO.perjalanan" :key="idx" class="progress-entry">
+            <div class="progress-dot"></div>
+            <div class="progress-entry-body">
+              <span class="progress-time" v-text="entry.waktu"></span>
+              <span class="progress-desc" v-text="entry.keterangan"></span>
+            </div>
+          </div>
+        </div>
+        <div class="progress-form">
+          <h4>Tambah Progress Baru</h4>
+          <p v-if="perjalananMsg" class="progress-msg" v-text="perjalananMsg"></p>
+          <div class="progress-form-row">
+            <input type="text" v-model="perjalananKeterangan" @keydown.enter.prevent="addPerjalanan" placeholder="Keterangan progress (contoh: Paket sampai di gudang UPBJJ)" class="progress-input">
+            <button type="button" class="btn btn-primary" @click="addPerjalanan" style="white-space:nowrap;">Tambah</button>
+          </div>
+        </div>
+      </div>
+    </div>

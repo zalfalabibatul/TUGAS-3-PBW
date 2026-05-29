@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – SITTA | Universitas Terbuka</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .login-page {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            padding: 20px;
+        }
+        
+        .login-bg-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+        
+        .login-bg-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(23, 49, 110, 0.9) 0%, rgba(16, 33, 78, 0.82) 50%, rgba(18, 42, 107, 0.88) 100%);
+            z-index: 1;
+        }
+        
+        .login-box {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 20px;
+            padding: 36px 32px 28px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 24px 64px rgba(28, 53, 110, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .login-page {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            width: 100%;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        
+        .login-box {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 420px;
+            margin: auto;
+        }
+        /* Glass — all text must be white/light */
+        
+        .login-logo h1 {
+            color: #ffffff !important;
+        }
+        
+        .login-logo p {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+        
+        .login-box .form-group label {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+        
+        .login-box .form-group input {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+            color: #ffffff !important;
+        }
+        
+        .login-box .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        .login-box .form-group input:focus {
+            background: rgba(255, 255, 255, 0.22) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12) !important;
+        }
+        
+        .remember-me {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+        
+        .forgot-link {
+            color: rgba(180, 210, 255, 0.95) !important;
+        }
+        
+        .forgot-link:hover {
+            color: #ffffff !important;
+        }
+        
+        .login-divider::before,
+        .login-divider::after {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+        
+        .login-divider span {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        .register-prompt {
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+        
+        .register-link {
+            color: rgba(180, 210, 255, 0.95) !important;
+        }
+        
+        .register-link:hover {
+            color: #ffffff !important;
+        }
+        
+        .login-footer {
+            color: rgba(255, 255, 255, 0.45) !important;
+        }
+        
+        .btn-toggle-pw {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+        
+        .btn-toggle-pw:hover {
+            color: #ffffff !important;
+        }
+        
+        .remember-me input[type="checkbox"] {
+            accent-color: #7aaae8;
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        
+        .login-logo img {
+            width: 72px;
+            height: 72px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+        }
+        
+        .login-logo p {
+            font-size: 13px;
+            margin: 0;
+        }
+        
+        .login-error {
+            background: #fef2f2;
+            color: #4a4eb7;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            border: 1px solid #fecaca;
+        }
+        
+        .login-box .form-group {
+            margin-bottom: 18px;
+        }
+        
+        .login-box .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .login-box .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+        
+        .login-box .form-group input:focus {
+            border-color: #1a3d8f;
+            box-shadow: 0 0 0 3px rgba(26, 61, 143, 0.12);
+            outline: none;
+            background: white;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: rgba(21, 47, 108, 0.95);
+            color: #91a9e7;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', inherit;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            letter-spacing: 0.2px;
+        }
+        
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+            background: #3952ad;
+        }
+        
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        /* Password toggle */
+        
+        .input-password-wrap {
+            position: relative;
+        }
+        
+        .input-password-wrap input {
+            padding-right: 42px;
+        }
+        
+        .btn-toggle-pw {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #293f65;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+        
+        .btn-toggle-pw:hover {
+            color: #223e79;
+        }
+        /* Ingat saya + lupa password row */
+        
+        .login-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            margin-top: -4px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            color: #475569;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        .remember-me input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: #1a3d8f;
+            cursor: pointer;
+            margin: 0;
+        }
+        
+        .forgot-link {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a3d8f;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .forgot-link:hover {
+            color: #071330;
+            text-decoration: underline;
+        }
+        /* Divider */
+        
+        .login-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 18px 0 14px;
+        }
+        
+        .login-divider::before,
+        .login-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        
+        .login-divider span {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        /* Register prompt */
+        
+        .register-prompt {
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        
+        .register-link {
+            font-weight: 700;
+            color: #1a3d8f;
+            text-decoration: none;
+            margin-left: 4px;
+            transition: color 0.2s;
+        }
+        
+        .register-link:hover {
+            color: #071330;
+            text-decoration: underline;
+        }
+        /* Modal overlay */
+        
+        .login-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(7, 19, 48, 0.55);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-modal-box {
+            background: #fff;
+            border-radius: 14px;
+            padding: 28px 28px 24px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 20px 60px rgba(7, 19, 48, 0.25);
+            position: relative;
+        }
+        
+        .login-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .login-modal-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #071330;
+            margin: 0;
+        }
+        
+        .login-modal-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #94a3b8;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+            transition: color 0.2s;
+        }
+        
+        .login-modal-close:hover {
+            color: #071330;
+        }
+        
+        .slide-fade-enter-active,
+        .slide-fade-leave-active {
+            transition: all 0.3s ease;
+        }
+        
+        .slide-fade-enter,
+        .slide-fade-leave-to {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+        
+        .swal-popup-custom {
+            border-radius: 24px !important;
+            padding: 40px 32px 36px !important;
+            font-family: 'Inter', 'Poppins', sans-serif !important;
+            position: relative !important;
+            overflow: hidden !important;
+            background: rgba(255, 255, 255, 0.92) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 24px 80px rgba(30, 27, 75, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.3) inset !important;
+            animation: swalAppear 0.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
+        }
+        
+        .swal-popup-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1a3d8f, #4a7fd4, #7aaae8, #4a7fd4, #1a3d8f);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        .swal-popup-custom::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.08;
+        }
+        
+        @keyframes swalAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.85) translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        @keyframes shimmer {
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+        
+        .swal-icon-glow {
+            filter: drop-shadow(0 4px 16px rgba(99, 144, 241, 0.3));
+            animation: iconPop 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        
+        @keyframes iconPop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            60% {
+                transform: scale(1.15);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="login-app" class="login-page">
+        <video class="login-bg-video" autoplay muted loop playsinline><source src="assets/img/new-bg.mp4" type="video/mp4"></video>
+        <div class="login-bg-overlay"></div>
+        <div class="login-box" style="position:relative;z-index:2;">
+            <div class="login-logo">
+                <img src="assets/img/UT.png" alt="UT" onerror="this.style.display='none'">
+                <h1>Universitas Terbuka</h1>
+                <p>Sistem Informasi Bahan Ajar</p>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" v-model="email" @keydown="handleKeydown" type="email" placeholder="Masukkan email" autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-password-wrap">
+                    <input id="password" v-model="password" @keydown="handleKeydown" :type="showPassword ? 'text' : 'password'" placeholder="Masukkan password" autocomplete="current-password">
+                    <button type="button" class="btn-toggle-pw" @click="showPassword = !showPassword" tabindex="-1">
+                        <svg v-if="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="login-options">
+                <label class="remember-me">
+                    <input type="checkbox" v-model="rememberMe">
+                    <span>Ingat Saya</span>
+                </label>
+                <a href="#" class="forgot-link" @click.prevent="showForgotModal = true">Lupa Password?</a>
+            </div>
+
+            <button class="btn-login" @click="doLogin" :disabled="load">
+                <span v-if="!load">Login</span>
+                <span v-else>Memverifikasi…</span>
+            </button>
+
+            <div class="login-divider"><span>atau</span></div>
+
+            <div class="register-prompt">
+                Belum punya akun?
+                <a href="#" @click.prevent="showRegisterModal = true" class="register-link">Daftar Sekarang</a>
+            </div>
+
+            <div class="login-footer">
+                &copy; 2026 Universitas Terbuka
+            </div>
+
+            <!-- Modal Lupa Password -->
+            <div v-if="showForgotModal" class="login-modal-overlay" @click.self="showForgotModal = false">
+                <div class="login-modal-box">
+                    <div class="login-modal-header">
+                        <h3>Lupa Password</h3>
+                        <button type="button" @click="showForgotModal = false" class="login-modal-close">&times;</button>
+                    </div>
+                    <p style="font-size:13px;color:#5e7291;margin-bottom:16px;">Masukkan email Anda. Instruksi reset password akan dikirim ke email tersebut.</p>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" v-model="forgotEmail" placeholder="Masukkan email terdaftar">
+                    </div>
+                    <button class="btn-login" @click="doForgotPassword" style="margin-top:4px;">Kirim Instruksi</button>
+                </div>
+            </div>
+
+            <!-- Modal Daftar -->
+            <div v-if="showRegisterModal" class="login-modal-overlay" @click.self="showRegisterModal = false">
+                <div class="login-modal-box">
+                    <div class="login-modal-header">
+                        <h3>Daftar Akun Baru</h3>
+                        <button type="button" @click="showRegisterModal = false" class="login-modal-close">&times;</button>
+                    </div>
+                    <p style="font-size:13px;color:#5e7291;margin-bottom:16px;">Pendaftaran akun memerlukan persetujuan administrator SITTA.</p>
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" v-model="regNama" placeholder="Masukkan nama lengkap">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" v-model="regEmail" placeholder="Masukkan email">
+                    </div>
+                    <div class="form-group">
+                        <label>NIM / NIP</label>
+                        <input type="text" v-model="regNim" placeholder="Masukkan NIM atau NIP">
+                    </div>
+                    <button class="btn-login" @click="doRegister" style="margin-top:4px;">Kirim Permintaan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="js/services/api.js"></script>
+    <script src="js/login.js"></script>
+</body>
+
+</html>

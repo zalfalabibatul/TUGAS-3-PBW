@@ -1,0 +1,5 @@
+    <span :class="badgeClass" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" style="position:relative;cursor:pointer"><span v-html="statusIcon"></span> {{ label }}
+      <div v-if="showTooltip && catatan" class="st-tooltip" :class="tooltipAbove ? 'st-above' : 'st-below'">
+        <div class="st-tooltip-body"><div class="st-tooltip-icon">📌</div><div class="st-tooltip-content" v-html="catatan"></div></div>
+      </div>
+    </span>

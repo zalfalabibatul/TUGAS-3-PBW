@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SITTA — Dashboard Bahan Ajar UT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/theme-navy-blue.css">
+</head>
+<body>
+  <script src="js/load-templates.js"></script>
+
+  <div id="app">
+    <sidebar-menu v-if="currentTab === 'dashboard'"
+      :collapsed="sidebarCollapsed"
+      :active-tab="currentTab"
+      :nav-menus="navMenus"
+      @toggle-collapse="sidebarCollapsed = !sidebarCollapsed"
+      @navigate="handleNavigate"
+      @logout="doLogout"
+    ></sidebar-menu>
+
+    <div class="main-area" :class="{ expanded: sidebarCollapsed, 'full-width': currentTab !== 'dashboard' }">
+      <topbar-header :user-name="userName" :today="today"></topbar-header>
+
+      <div class="content-area">
+        <dashboard-home v-if="currentTab === 'dashboard'" :items="items" :user-name="userName" @navigate="handleNavigate"></dashboard-home>
+        <stok-table v-else-if="currentTab === 'stok'" :items="items" @navigate="handleNavigate"></stok-table>
+        <tracking-do v-else-if="currentTab === 'tracking'" :items="items" :pengiriman-list="pengirimanList" :paket-list="paketList" :tracking-list="trackingList" @navigate="handleNavigate"></tracking-do>
+        <history-page v-else-if="currentTab === 'histori'" :items="items" :tracking-list="trackingList" @navigate="handleNavigate"></history-page>
+        <laporan-page v-else-if="currentTab === 'laporan'" :items="items" @navigate="handleNavigate"></laporan-page>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/services/api.js"></script>
+  <script src="js/components/sidebar-menu.js"></script>
+  <script src="js/components/topbar-header.js"></script>
+  <script src="js/components/dashboard-home.js"></script>
+  <script src="js/components/stok-table.js"></script>
+  <script src="js/components/tracking-do.js"></script>
+  <script src="js/components/history-page.js"></script>
+  <script src="js/components/laporan-page.js"></script>
+  <script src="js/components/status-badge.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

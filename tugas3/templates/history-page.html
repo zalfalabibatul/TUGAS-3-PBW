@@ -1,0 +1,42 @@
+    <div class="history-wrap">
+      <div class="info-banner-blue">
+        <div class="page-header-left">
+          <div class="page-header-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3z" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          </div>
+          <div>
+            <h2 class="page-header-title">Histori Transaksi</h2>
+            <p class="page-header-subtitle">Riwayat Delivery Order bahan ajar</p>
+          </div>
+        </div>
+        <button type="button" class="btn-back-dash" @click="goToDashboard">Dashboard</button>
+      </div>
+      <div class="history-card">
+        <div class="history-card-body">
+          <div class="history-toolbar">
+            <input type="text" v-model="filters.keyword" placeholder="Cari nomor DO / nama...">
+            <select v-model="filters.status" title="Filter status transaksi"><option value="">Semua Status</option><option value="Diproses">Diproses</option><option value="Dikirim">Dikirim</option><option value="Dalam Perjalanan">Dalam Perjalanan</option><option value="Diterima">Diterima</option><option value="Selesai">Selesai</option><option value="Terkirim">Terkirim</option></select>
+            <select v-model="filters.sortBy" title="Urutkan histori transaksi"><option value="tanggal">Urut Tanggal</option><option value="nomor">Urut Nomor DO</option><option value="nama">Urut Nama</option></select>
+            <button type="button" class="btn-reset" @click="resetFilters">↻ Reset</button>
+          </div>
+          <p class="history-summary" v-html="historySummary"></p>
+          <div class="history-table-wrap">
+            <table>
+              <thead><tr><th>Nomor DO</th><th>Nama</th><th>Tanggal Kirim</th><th>Paket</th><th>Total Harga</th><th>Status</th><th>Ubah Status</th></tr></thead>
+              <tbody>
+                <tr v-if="filteredList.length === 0"><td colspan="7" class="history-empty">Data histori transaksi tidak ditemukan.</td></tr>
+                <tr v-for="(item, index) in filteredList" :key="item.nomorDO + '-' + index">
+                  <td><span class="cell-do" v-text="item.nomorDO"></span></td><td v-text="item.nama"></td><td v-text="item.tanggalKirim"></td><td v-text="item.paketKode"></td>
+                  <td><span class="cell-harga" v-text="toRupiah(item.totalHarga)"></span></td>
+                  <td><span class="status-badge" :class="statusClass(item.status)" v-text="item.status"></span></td>
+                  <td style="white-space:nowrap;">
+                    <select class="hist-status-select" :value="item.status" @change="changeStatus(item, $event.target.value)"><option v-for="s in statusOptions" :key="s" :value="s" v-text="s"></option></select>
+                    <button type="button" class="hist-btn-save" @click="saveStatus(item)">Simpan</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>

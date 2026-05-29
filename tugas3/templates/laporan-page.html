@@ -1,0 +1,142 @@
+    <div v-if="subTab === 'home'">
+      <div class="laporan-app">
+        <div class="laporan-page-header">
+          <div>
+            <h1 class="page-title-dark">Laporan</h1>
+            <div class="page-subtitle-dark">Pusat akses laporan bahan ajar SITTA</div>
+          </div>
+          <button type="button" class="btn-back-dash" @click="goToDashboard">
+            Dashboard
+          </button>
+        </div>
+        <div class="laporan-content">
+          <div class="report-grid">
+            <div class="selector-box">
+              <h3>Monitoring List Bahan Ajar</h3>
+              <p>Memantau stok, safety stock, dan daftar item yang perlu reorder.</p>
+              <div><button type="button" @click="openMonitoring">Buka Monitoring</button></div>
+            </div>
+            <div class="selector-box">
+              <h3>Rekap Bahan Ajar</h3>
+              <p>Melihat ringkasan total judul, qty, dan nilai stok per UT-Daerah.</p>
+              <div><button type="button" @click="openRekap">Buka Rekap</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else-if="subTab === 'monitoring'">
+      <div class="monitoring-app">
+        <div class="laporan-page-header">
+          <div>
+            <h1 class="page-title-dark">Monitoring List Bahan Ajar</h1>
+            <div class="page-subtitle-dark">Pemantauan stok, safety stock, dan kebutuhan reorder</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" class="btn-back-dash" @click="subTab = 'home'">
+              Kembali
+            </button>
+            <button type="button" class="btn-back-dash" @click="goToDashboard">
+              Dashboard
+            </button>
+          </div>
+        </div>
+        <div class="monitoring-content">
+          <div class="monitor-toolbar">
+            <input type="text" v-model="mKeyword" placeholder="Cari kode / judul">
+            <select v-model="mUpbjj" aria-label="Filter UT-Daerah">
+              <option value="">Semua UT-Daerah</option>
+              <option v-for="u in upbjjOptions" :key="u" :value="u" v-text="u"></option>
+            </select>
+            <select v-model="mStatus" aria-label="Filter kondisi stok">
+              <option value="">Semua Kondisi</option>
+              <option value="low">Perlu Reorder (qty &lt; safety)</option>
+            </select>
+            <button type="button" @click="resetMonitoring">Reset</button>
+          </div>
+          <div class="monitor-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Kode</th>
+                  <th>Judul</th>
+                  <th>UT-Daerah</th>
+                  <th>Stock</th>
+                  <th>Safety</th>
+                  <th>Selisih</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="filteredMonitoring.length === 0">
+                  <td colspan="7" class="monitor-empty">Data monitoring tidak ditemukan.</td>
+                </tr>
+                <tr v-for="item in filteredMonitoring" :key="item.kode">
+                  <td v-text="item.kode"></td>
+                  <td v-text="item.judul"></td>
+                  <td v-text="item.upbjj || '-'"></td>
+                  <td v-text="item.qty"></td>
+                  <td v-text="item.safety"></td>
+                  <td v-text="selisih(item)"></td>
+                  <td><span v-if="Number(item.qty) < Number(item.safety)" class="monitor-status monitor-low">Perlu Reorder</span><span v-else class="monitor-status monitor-ok">Aman</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="monitor-summary">
+            <span><strong>Total Item:</strong> {{ filteredMonitoring.length }}</span>
+            <span><strong>Total Stock:</strong> {{ monitoringTotalQty }}</span>
+            <span><strong>Perlu Reorder:</strong> {{ monitoringLowCount }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else>
+      <div class="rekap-wrap">
+        <div class="laporan-page-header">
+          <div>
+            <h1 class="page-title-dark">Rekap Bahan Ajar</h1>
+            <div class="page-subtitle-dark">Ringkasan total stok dan nilai per UT-Daerah</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" class="btn-back-dash" @click="subTab = 'home'">
+              Kembali
+            </button>
+            <button type="button" class="btn-back-dash" @click="goToDashboard">
+              Dashboard
+            </button>
+          </div>
+        </div>
+        <div class="rekap-content">
+          <div class="rekap-cards">
+            <div class="rekap-card"><div class="label">Total Judul</div><div class="value" v-text="totalJudul"></div></div>
+            <div class="rekap-card"><div class="label">Jumlah Stok</div><div class="value" v-text="totalQty"></div></div>
+            <div class="rekap-card"><div class="label">Total Nilai Stok</div><div class="value" style="font-size:20px" v-text="toRupiah(totalNilai)"></div></div>
+          </div>
+          <div class="rekap-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>UT-Daerah</th>
+                  <th>Jumlah Judul</th>
+                  <th>Total Semua Stok</th>
+                  <th>Total Nilai Stok</th>
+                  <th>Item Menipis</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(val, upbjj) in grouped" :key="upbjj">
+                  <td v-text="upbjj"></td>
+                  <td v-text="val.judul"></td>
+                  <td v-text="val.qty"></td>
+                  <td v-text="toRupiah(val.nilai)"></td>
+                  <td v-text="val.low"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>

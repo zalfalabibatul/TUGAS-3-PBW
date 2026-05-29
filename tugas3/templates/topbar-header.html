@@ -1,0 +1,14 @@
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-date"><strong v-text="today"></strong></div>
+        <div class="topbar-divider"></div>
+        <div class="topbar-search">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Cari sesuatu...">
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-avatar-name" v-text="userName"></span>
+        <div class="topbar-avatar" v-text="userName.charAt(0)"></div>
+      </div>
+    </div>

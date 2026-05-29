@@ -1,0 +1,35 @@
+    <aside class="sidebar" :class="{ collapsed: collapsed }">
+      <div class="sidebar-inner">
+        <div class="sidebar-brand">
+          <div class="logo-box">UT</div>
+          <div class="brand-text">
+            <h2>STUDY3</h2>
+            <div class="brand-sub">Sistem Bahan Ajar</div>
+          </div>
+        </div>
+        <div class="sidebar-profile">
+          <div class="sidebar-avatar" v-text="userName.charAt(0)"></div>
+          <div class="sidebar-profile-info">
+            <div class="sidebar-profile-name" v-text="userName"></div>
+            <div class="sidebar-profile-role" v-text="userRole"></div>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="sidebar-nav-label">Menu</div>
+          <div v-for="menu in navMenus" :key="menu.id" class="nav-item" :class="{ active: activeTab === menu.id }" @click="handleNav(menu)">
+            <span class="nav-icon" v-text="menu.icon"></span>
+            <span class="nav-text" v-text="menu.title"></span>
+          </div>
+        </nav>
+        <div class="sidebar-footer">
+          <button class="logout-btn" @click="$emit('logout')">
+            <span class="logout-icon">🚪</span>
+            <span class="logout-text">Keluar</span>
+            <span class="logout-arrow">→</span>
+          </button>
+        </div>
+        <div class="sidebar-toggle" @click="$emit('toggle-collapse')" :title="collapsed ? 'Perluas' : 'Ciutkan'">
+          <span v-text="collapsed ? '→' : '←'"></span>
+        </div>
+      </div>
+    </aside>

@@ -1,0 +1,103 @@
+    <div class="stock-page-wrap">
+      <div class="stock-page-header info-banner-blue">
+        <div class="page-header-left">
+          <div class="page-header-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <div>
+            <h2 class="page-header-title">Informasi Bahan Ajar</h2>
+            <p class="page-header-subtitle">Kelola stok dan data bahan ajar Universitas Terbuka</p>
+          </div>
+        </div>
+        <button type="button" class="btn-back-dash" @click="goToDashboard">Dashboard</button>
+      </div>
+      <div class="stock-layout">
+        <div class="stock-main">
+          <div class="stock-card">
+            <div class="stock-card-body">
+              <div class="stock-filter-bar">
+                <div class="filter-group filter-search-group">
+                  <label class="filter-label" for="stok-search">Cari</label>
+                  <div class="search-row">
+                    <input id="stok-search" v-model="filters.keyword" type="search" placeholder="Kode MK / Judul..." autocomplete="off" @keydown.enter.prevent="scrollToTable" @keyup.escape="filters.keyword=''">
+                    <button type="button" class="btn btn-primary btn-cari" @click="scrollToTable">Cari</button>
+                  </div>
+                </div>
+                <div class="filter-group" v-if="upbjjOptions.length">
+                  <label class="filter-label" for="stok-upbjj">UT-Daerah</label>
+                  <select id="stok-upbjj" v-model="filters.upbjj"><option value="">Semua</option><option v-for="u in upbjjOptions" :key="u" :value="u" v-text="u"></option></select>
+                </div>
+                <div class="filter-group" v-if="filters.upbjj && filteredKategoriOptions.length">
+                  <label class="filter-label" for="stok-kategori">Kategori</label>
+                  <select id="stok-kategori" v-model="filters.kategori"><option value="">Semua</option><option v-for="k in filteredKategoriOptions" :key="k" :value="k" v-text="k"></option></select>
+                </div>
+                <div class="filter-group">
+                  <label class="filter-label" for="stok-sort">Urutkan</label>
+                  <select id="stok-sort" v-model="filters.sortBy"><option value="judul">Judul</option><option value="qty">Stok ↑</option><option value="harga">Harga</option></select>
+                </div>
+              </div>
+              <div class="stock-filter-row2">
+                <label><input type="checkbox" v-model="filters.onlyLow"> Stok di bawah safety</label>
+                <label><input type="checkbox" v-model="filters.onlyZero"> Stok kosong</label>
+                <button type="button" class="btn-reset-filter" @click="resetFilters">↻ Reset Filter</button>
+              </div>
+              <p class="stock-summary-text" v-html="stockSummary"></p>
+              <p v-show="activeFilterHint" class="stock-filter-hint"><span class="hint-icon">🔍</span> <span v-text="activeFilterHint"></span></p>
+              <div class="stock-table-wrap" ref="tableWrap">
+                <table class="stock-table">
+                  <thead><tr><th>Kode / Judul</th><th>Kategori</th><th>UT-Daerah</th><th>Lokasi Rak</th><th>Stok</th><th>Safety</th><th>Harga</th><th>Status</th><th>Aksi</th></tr></thead>
+                  <tbody>
+                    <tr v-if="items.length === 0"><td colspan="9" class="stock-empty">Belum ada data stok. Tambahkan dari form di samping.</td></tr>
+                    <tr v-else-if="filteredItems.length === 0"><td colspan="9" class="stock-empty">Data tidak ditemukan dengan filter saat ini.</td></tr>
+                    <template v-for="(item, index) in filteredItems" :key="item.id || item.kode">
+                      <tr :class="index % 2 === 0 ? 'zebra-even' : 'zebra-odd'">
+                        <td><span class="cell-kode" v-text="item.kode"></span><span class="cell-judul" v-text="item.judul || item.nama"></span></td>
+                        <td v-text="item.kategori || '—'"></td><td v-text="item.upbjj || '—'"></td><td v-text="item.lokasiRak || '—'"></td>
+                        <td>{{ item.qty }} buah</td><td>{{ item.safety }} buah</td><td v-text="toRupiah(item.harga)"></td>
+                        <td><status-badge :qty="item.qty" :safety="item.safety" :catatan="item.catatanHTML || ''"></status-badge></td>
+                        <td class="cell-actions"><button type="button" class="btn-edit-table" @click="startEdit(item)">Edit</button> <button type="button" class="btn-delete-table" @click="deleteItem(item)">Hapus</button></td>
+                      </tr>
+                      <tr v-if="editingId === (item.id || item.kode)" class="stock-edit-row">
+                        <td colspan="9">
+                          <div class="stock-edit-inner">
+                            <div class="edit-grid">
+                              <div><label>Stok</label><input type="number" min="0" v-model.number="editForm.qty" :class="{ 'input-error': editFormErrors.qty }" @keydown.enter.prevent="saveEdit(item)"><span v-if="editFormErrors.qty" class="form-error" v-text="editFormErrors.qty"></span></div>
+                              <div><label>Safety</label><input type="number" min="0" v-model.number="editForm.safety" :class="{ 'input-error': editFormErrors.safety }" @keydown.enter.prevent="saveEdit(item)"><span v-if="editFormErrors.safety" class="form-error" v-text="editFormErrors.safety"></span></div>
+                              <div><label>Harga</label><input type="number" min="0" v-model.number="editForm.harga" :class="{ 'input-error': editFormErrors.harga }" @keydown.enter.prevent="saveEdit(item)"><span v-if="editFormErrors.harga" class="form-error" v-text="editFormErrors.harga"></span></div>
+                              <div><label>Catatan</label><input v-model="editForm.catatanHTML" placeholder="Catatan dalam HTML" @keydown.enter.prevent="saveEdit(item)"></div>
+                            </div>
+                            <p v-if="editError" class="form-error" v-text="editError"></p>
+                            <p v-if="Object.keys(editFormErrors).length" class="form-error">Perbaiki kesalahan sebelum menyimpan.</p>
+                            <div class="edit-actions"><button class="btn btn-primary" @click="saveEdit(item)">Simpan</button><button class="btn btn-danger" @click="cancelEdit">Batal</button></div>
+                          </div>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="stock-sidebar">
+          <div class="stock-form-card">
+            <h3><span class="form-plus">+</span> Tambah stok baru</h3>
+            <form @submit.prevent="addItem">
+            <div class="form-fields">
+              <div><label class="f-label" for="new-kode">Kode MK</label><input id="new-kode" v-model="newItem.kode" :class="{ 'input-error': formErrors.kode }" placeholder="Contoh: EKMA4216"><span v-if="formErrors.kode" class="form-error" v-text="formErrors.kode"></span></div>
+              <div><label class="f-label" for="new-judul">Judul MK</label><input id="new-judul" v-model="newItem.judul" :class="{ 'input-error': formErrors.judul }" placeholder="Judul lengkap"><span v-if="formErrors.judul" class="form-error" v-text="formErrors.judul"></span></div>
+              <div class="form-row-pair">
+                <div><label class="f-label" for="new-kategori">Kategori</label><select id="new-kategori" v-model="newItem.kategori" :class="{ 'input-error': formErrors.kategori }"><option value="">— Pilih —</option><option v-for="k in allKategoriOptions" :key="k" :value="k" v-text="k"></option></select><span v-if="formErrors.kategori" class="form-error" v-text="formErrors.kategori"></span></div>
+                <div><label class="f-label" for="new-upbjj">UT-Daerah</label><select id="new-upbjj" v-model="newItem.upbjj" :class="{ 'input-error': formErrors.upbjj }"><option value="">— Pilih —</option><option v-for="u in upbjjOptions" :key="u" :value="u" v-text="u"></option></select><span v-if="formErrors.upbjj" class="form-error" v-text="formErrors.upbjj"></span></div>
+              </div>
+              <div><label class="f-label" for="new-lokasi">Lokasi Rak</label><input id="new-lokasi" v-model="newItem.lokasiRak" placeholder="Contoh: R0-A0"></div>
+              <div class="form-row-pair"><div><label class="f-label" for="new-qty">Stok</label><input id="new-qty" type="number" min="0" v-model.number="newItem.qty" placeholder="0"></div><div><label class="f-label" for="new-safety">Safety</label><input id="new-safety" type="number" min="0" v-model.number="newItem.safety" placeholder="0"></div></div>
+              <div><label class="f-label" for="new-harga">Harga</label><input id="new-harga" type="number" min="0" v-model.number="newItem.harga" placeholder="0"></div>
+              <div><label class="f-label" for="new-catatan">Catatan</label><textarea id="new-catatan" v-model="newItem.catatanHTML" placeholder="Tambahkan catatan..." @keydown.enter.prevent="addItem"></textarea></div>
+              <div class="form-actions"><button type="submit" class="btn btn-save">Simpan</button><button type="button" class="btn btn-secondary" @click="resetNewForm">Reset</button></div>
+            </div>
+            </form>
+          </div>
+        </aside>
+      </div>
+    </div>
